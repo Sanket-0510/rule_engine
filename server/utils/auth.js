@@ -26,21 +26,22 @@ function isStrongPassword(password) {
     }
     return true;
   }
-
+const ZEOTAP_SECRET_KEY = process.env.SECRET_KEY || "zeotap_secret_key"
 async function createJwtToken(user){
+    console.log("we are here " +ZEOTAP_SECRET_KEY)
     const payload = {
       _id: user.user_id,
       name:user.name,
       email:user.email
     }
-    const token = jwt.sign(payload,"zeotap_secret_key" )
+    const token = jwt.sign(payload, ZEOTAP_SECRET_KEY)
     
     return token
 
 }
 function verifyJwt(token){
      console.log("we are here ")
-     const payload = jwt.verify(token, "zeotap_secret_key")
+     const payload = jwt.verify(token, process.env.ZEOTAP_SECRET_KEY)
      console.log("this is the payload " + payload)
      return payload
 }
