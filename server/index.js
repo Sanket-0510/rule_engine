@@ -11,7 +11,7 @@ import cors from 'cors';
 import authRouter from './routes/auth.js';
 import userRouter from './routes/user.js';
 import rulesRouter from './routes/rules.js';
-import sequelize from './conn.js';
+// import sequelize from './conn.js';
 
 
 const app = express();
@@ -31,6 +31,6 @@ app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
 
-sequelize.authenticate()
+// sequelize.authenticate()
 
 

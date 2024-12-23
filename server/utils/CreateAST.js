@@ -1,3 +1,5 @@
+// import { mergeRule } from "../controllers/rules";
+
 class Node {
     constructor(value) {
         this.value = value;
@@ -123,11 +125,41 @@ class AST {
         const node = new Node(nodeObj.value);
     
         // Recursively rebuild the left and right subtrees
-        node.left = nodeObj.left ? rebuildAST(nodeObj.left,test) : null;
-        node.right = nodeObj.right ? rebuildAST(nodeObj.right,test) : null;
+        node.left = nodeObj.left ? this.rebuildAST(nodeObj.left,test) : null;
+        node.right = nodeObj.right ? this.rebuildAST(nodeObj.right,test) : null;
     
         return node;
     }
+
+    mergeRule(node1, node2, mergerCondition){
+        const node = new Node(mergerCondition)
+        node.left = node1
+        node.right = node2
+        return node
+    }
+
+   printTree(node) {
+    if (!node) return; // Base condition to stop recursion if the node is null
+
+    console.log(node.value); // Print the value of the current node
+
+    // Recursively traverse the left and right subtrees
+    this.printTree(node.left);
+    this.printTree(node.right);
+}
+
+   transformTree(node) {
+    if (!node) return null;
+  
+    return {
+      name: node.value, 
+      children: [
+        this.transformTree(node.left), 
+        this.transformTree(node.right) 
+      ].filter(Boolean) 
+    };
+  }
+  
 
 }
 
@@ -136,28 +168,52 @@ export {AST, Node}
 
 
 
-// Usage example
+// // Usage example
+// const ast = new AST()
 // const jsonString = '{"value":"AND","left":{"value":"OR","left":{"value":"age > 30","left":null,"right":null},"right":{"value":"department = Sales","left":null,"right":null}},"right":{"value":"OR","left":{"value":"salary > 50000","left":null,"right":null},"right":{"value":"experience > 5","left":null,"right":null}}}';
 // const parsedJSON = JSON.parse(jsonString);
-// const rootNode = rebuildAST(parsedJSON);
+// const rootNode = ast.rebuildAST(parsedJSON , "test");
 // console.log(JSON.stringify(rootNode, null, 2));
 
+
+
 // Example usage
-// const expression = "((age > 30 AND department = 'Sales') OR (age < 25 AND department = 'Marketing')) AND (salary > 50000 OR experience > 5)";
-// const ast = new AST();
-// const root = ast.createAST(expression, 0, expression.length - 1);
+const expression = "((age > 30 AND department = 'Sales') OR (age < 25 AND department = 'Marketing')) AND (salary > 50000 OR experience > 5)";
+const ast = new AST();
+const root1 = ast.createAST(expression, 0, expression.length - 1);
 
-// Output the AST structure
+const exp2 = "(salary > 30000 AND experience > 3)"
+
+const root2 = ast.createAST(exp2, 0 , exp2.length-1);
+
+const finalNode = ast.mergeRule(root1,root2, "AND")
+console.log(finalNode)
+console.log(JSON.stringify(finalNode))
+
+ast.printTree(finalNode)
+const data = {
+        age: 31,
+        department: 'Sales',
+        salary: 30000,
+        experience: 6
+    };
+
+const result = ast.evaluate(finalNode, data);
+
+console.log(result)
 
 
-// Evaluate the expression
+// // Output the AST structure
+// console.log(root)
+
+// // Evaluate the expression
 // const data = {
 //     age: 30,
 //     department: 'Sales',
 //     salary: 60000,
 //     experience: 3
 // };
-// const result = ast.evaluate(rootNode, data);
+// const result = ast.evaluate(root, data);
 
 // console.log(result); // true
 
@@ -166,59 +222,3 @@ export {AST, Node}
 // Output the AST structure
 
 
-
-
-// class AST {
-//     constructor() {
-//         this.root = null;
-//     }
-//     stack = [];
-//     createAST(rule, startingIndex, endingIndex, stack) {
-//         // AST creation logic
-
-        
-//         let root = null;
-//         if (rule[startingIndex] === '(' && rule[endingIndex] === ')') {
-//             for (let i = startingIndex; i <= endingIndex; i++) {
-//                 if (rule[i] === 'A') {
-//                     root = new Node(rule.slice(i, i + 3));
-//                     root.left = new Node (rule.slice(startingIndex, i-2));
-//                     root.right = new Node (rule.slice(i+1, endingIndex));
-//                 } else if (rule[i] === 'O') {
-//                     root = new Node(rule.slice(i, i + 2));
-//                     root.left = new Node (rule.slice(startingIndex, i-2));
-//                     root.right = new Node (rule.slice(i+1, endingIndex));
-//                 }
-//             }
-//         }
-
-//         //base case
-
-//         for (let i = 0; i < rule.length; i++) {
-
-//             if (rule[i] === '(') {
-//                 stack.push('(');
-//             } 
-//             if (rule[i] === ')') {
-//                stack.pop();
-//             } 
-
-
-//             if(stack.length === 0){
-//                 if(rule[i]=='A'){
-//                     root = new Node(rule.slice(i,i+3));
-//                 }
-//                 else if(rule[i]=='O'){ 
-//                     root = new Node(rule.slice(i,i+2));
-//                 }
-//                 root.left = new createAST(rule, startingIndex+1, i-2, stack);
-//                 root.right = new createAST(rule, i+1, endingIndex, stack);
-//             }
-
-
-//         }
-//     ;
-//     }
-
-
-// }

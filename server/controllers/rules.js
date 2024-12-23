@@ -3,36 +3,21 @@ import {AST,Node} from "../utils/CreateAST.js";
 import User from "../models/User.js";
 
 const tree = new AST()
-const node = new Node()
 
 
-function rebuildAST(nodeObj, test){
-    console.log(nodeObj, test)
-    if (!nodeObj) return null;
-
-    // Create a new Node instance with the value from the JSON object
-    const node = new Node(nodeObj.value);
-
-    // Recursively rebuild the left and right subtrees
-    node.left = nodeObj.left ? rebuildAST(nodeObj.left,test) : null;
-    node.right = nodeObj.right ? rebuildAST(nodeObj.right,test) : null;
-
-    return node;
-}
 
 const createRule = async(req,res)=>{           
     const data = req.body
     const user = req.user
     try{
 
-    //check if the user exists
+    // check if the user exists
     const userData = await User.findOne({where: {email: user.email}})
-    const rule = data.rule
+    const rule = data.inputRule
     const root = tree.createAST(rule, 0, rule.length-1)
     const convert = JSON.stringify(root)
-
-
-    //data to enter in the database
+    const d3Format = JSON.stringify(tree.transformTree(root))
+    // data to enter in the database
     const temp = {
         user_id: userData.user_id,
         name: data.name,
@@ -41,7 +26,7 @@ const createRule = async(req,res)=>{
     }
 
     const newRule = await Rule.create(temp)
-    res.status(201).json(newRule)
+    res.status(201).json(d3Format)
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -57,7 +42,7 @@ const evaluateData = async(req,res)=>{
         console.log(rule.Json)
         const parsedJSON = JSON.parse(rule.Json);
         console.log(parsedJSON)
-        const root = rebuildAST(parsedJSON, "test");
+        const root = tree.rebuildAST(parsedJSON, "test");
         console.log(root,data.data)
         
         const result = tree.evaluate(root, data.data)
