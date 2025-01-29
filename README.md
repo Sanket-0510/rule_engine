@@ -1,6 +1,3 @@
-# Zeotap Rule Engine API
-
-This project is the backend API for the Zeotap Rule Engine. You can set it up using Docker for a containerized environment or locally by installing the necessary dependencies.
 
 ## Prerequisites
 
